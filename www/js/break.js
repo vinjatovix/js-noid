@@ -4,15 +4,29 @@
 const keyz = { ArrowLeft: false, ArrowRight: false };
 /**
  * !---------------------------------------------------------TABLERO */
+const game = {
+    grid: 60,
+    ani: "",
+};
 // * Creo un plano fisico de 2 Dimensiones y lo prepengo en el DOM
 
 const canvas = document.createElement("canvas");
 const ctx = canvas.getContext("2d");
 document.body.prepend(canvas);
 
-// * Declaro las dimensiones del tablero y le doy un borde
+/**
+ * ! ------------------------------------------------------   JUGADOR */
+const player = {
+    x: game.grid * 7,
+    y: game.grid * 9,
+    w: game.grid * 2,
+    h: game.grid / 2,
+    color: "red",
+    speed: 9,
+};
 
-const game = { grid: 60 };
+/**
+ * ! ------------------------------------------------------CREO EL TABLERO */
 canvas.setAttribute("width", game.grid * 15);
 canvas.setAttribute("height", game.grid * 10);
 canvas.style.border = "1px solid black";
@@ -36,27 +50,30 @@ document.addEventListener("keyup", (e) => {
     console.log(keyz);
 });
 
-/**
- * ! ------------------------------------------------------   JUGADOR */
-//*  Declaro la posicion y dimensiones del jugador, asi como un color
-const player = {
-    x: game.grid * 7,
-    y: game.grid * 9,
-    w: game.grid * 2,
-    h: game.grid / 2,
-    color: "red",
-};
-
 /* *
 ! ----------------------------------------------------------- DIBUJO */
-draw();
+game.ani = requestAnimationFrame(draw);
 
+
+//* con esta funcion actualizamos la posicion del jugador
+function movement() {
+    if (keyz.ArrowLeft) {
+        player.x -= player.speed;
+    }
+    if (keyz.ArrowRight) {
+        player.x += player.speed;
+    }
+}
 
 function draw() {
-    //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
+    // * Cada vez que dibujamos, hay que borrar la pantalla anterior
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
+        //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
+    movement();
     ctx.beginPath();
     ctx.rect(player.x, player.y, player.w, player.h);
     ctx.fillStyle = player.color;
     ctx.fill();
     ctx.closePath();
+    game.animation = requestAnimationFrame(draw);
 }
