@@ -13,13 +13,14 @@ const ball = {
     y: game.grid * 5,
     w: game.grid / 5,
     h: game.grid / 5,
-    color: "green",
-    dx: 6,
+    color: "gold",
+    dx: 5,
     dy: 5,
 };
 // * Creo un plano fisico de 2 Dimensiones y lo prepengo en el DOM
 
 const canvas = document.createElement("canvas");
+canvas.style.background = "black";
 const ctx = canvas.getContext("2d");
 document.body.prepend(canvas);
 
@@ -60,7 +61,8 @@ document.addEventListener("keyup", (e) => {
 });
 canvas.addEventListener("mousemove", (e) => {
     //* movimiento del raton dentro del canvas
-    console.log(e);
+    /*     console.log(e);
+     */
     const val = e.clientX - canvas.offsetLeft;
     //* Si el raton está dentro del canvas
     if (val > player.w && val < canvas.width) {
@@ -72,6 +74,33 @@ canvas.addEventListener("mousemove", (e) => {
 ! ----------------------------------------------------------- DIBUJO */
 game.ani = requestAnimationFrame(draw);
 
+function collDetection(obj1, obj2) {
+    const xAxis = obj1.x < obj2.x + obj2.w && obj1.x + obj1.w > obj2.x;
+    const yAxis = obj1.y < obj2.y + obj2.h && obj1.y + obj1.h > obj2.y;
+    const val = xAxis && yAxis;
+
+    return val;
+}
+
+function draw() {
+    // * Cada vez que dibujamos, hay que borrar la pantalla anterior
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
+    playerMovement();
+    ballMovement();
+    drawPlayer();
+    drawBall();
+    if (collDetection(player, ball)) {
+        ball.dy *= -1;
+        let val1 = ball.x + (ball.w / 2) - player.x;
+        let val2 = val1 - player.w / 2;
+        let val3 = Math.ceil(val2 / (player.w / 10));
+        ball.dx = val3
+
+    };
+
+    game.animation = requestAnimationFrame(draw);
+}
 //* con esta funcion actualizamos la posicion del jugador
 function playerMovement() {
     if (keyz.ArrowLeft) {
@@ -83,47 +112,37 @@ function playerMovement() {
 }
 //* Lo mismo con la bola
 function ballMovement() {
-    if (ball.x > canvas.width || ball.x < 0) {
+    if (ball.x >= canvas.width || ball.x < 0) {
         ball.dx *= -1;
     }
-    if (ball.y > canvas.height || ball.y < 0) {
+    if (ball.y >= canvas.height || ball.y < 0) {
         ball.dy *= -1;
     }
     ball.x += ball.dx;
     ball.y += ball.dy;
 }
 
+//* Dibujamos la bola
 function drawBall() {
     ctx.beginPath();
     ctx.rect(ball.x, ball.y, ball.w, ball.h);
-    ctx.strokeStyle = 'white'
+    ctx.strokeStyle = "black";
     ctx.stroke();
 
     ctx.closePath();
 
     ctx.beginPath();
     ctx.fillStyle = ball.color;
-    let align = ball.w / 2
-    ctx.arc(ball.x + align, ball.y + align, ball.w / 2, 0, Math.PI * 2)
+    let align = ball.w / 2;
+    ctx.arc(ball.x + align, ball.y + align, ball.w / 2, 0, Math.PI * 2);
     ctx.fill();
 }
 
+//* dibujamos al jugador
 function drawPlayer() {
     ctx.beginPath();
     ctx.rect(player.x, player.y, player.w, player.h);
     ctx.fillStyle = player.color;
     ctx.fill();
     ctx.closePath();
-}
-
-function draw() {
-    // * Cada vez que dibujamos, hay que borrar la pantalla anterior
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
-    playerMovement();
-    ballMovement();
-    drawPlayer();
-    drawBall();
-
-    game.animation = requestAnimationFrame(draw);
 }
