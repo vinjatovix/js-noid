@@ -8,6 +8,15 @@ const game = {
     grid: 60,
     ani: "",
 };
+const ball = {
+    x: game.grid * 7,
+    y: game.grid * 5,
+    w: game.grid / 5,
+    h: game.grid / 5,
+    color: "green",
+    dx: 6,
+    dy: 5,
+};
 // * Creo un plano fisico de 2 Dimensiones y lo prepengo en el DOM
 
 const canvas = document.createElement("canvas");
@@ -21,7 +30,7 @@ const player = {
     y: game.grid * 9,
     w: game.grid * 2,
     h: game.grid / 2,
-    color: "red",
+    color: "rebeccapurple",
     speed: 9,
 };
 
@@ -49,23 +58,22 @@ document.addEventListener("keyup", (e) => {
     }
     console.log(keyz);
 });
-canvas.addEventListener('mousemove', (e) => {
+canvas.addEventListener("mousemove", (e) => {
     //* movimiento del raton dentro del canvas
     console.log(e);
     const val = e.clientX - canvas.offsetLeft;
     //* Si el raton está dentro del canvas
     if (val > player.w && val < canvas.width) {
-        player.x = val - player.w
+        player.x = val - player.w;
     }
-})
+});
 
 /* *
 ! ----------------------------------------------------------- DIBUJO */
 game.ani = requestAnimationFrame(draw);
 
-
 //* con esta funcion actualizamos la posicion del jugador
-function movement() {
+function playerMovement() {
     if (keyz.ArrowLeft) {
         player.x -= player.speed;
     }
@@ -73,16 +81,49 @@ function movement() {
         player.x += player.speed;
     }
 }
+//* Lo mismo con la bola
+function ballMovement() {
+    if (ball.x > canvas.width || ball.x < 0) {
+        ball.dx *= -1;
+    }
+    if (ball.y > canvas.height || ball.y < 0) {
+        ball.dy *= -1;
+    }
+    ball.x += ball.dx;
+    ball.y += ball.dy;
+}
 
-function draw() {
-    // * Cada vez que dibujamos, hay que borrar la pantalla anterior
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-        //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
-    movement();
+function drawBall() {
+    ctx.beginPath();
+    ctx.rect(ball.x, ball.y, ball.w, ball.h);
+    ctx.strokeStyle = 'white'
+    ctx.stroke();
+
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.fillStyle = ball.color;
+    let align = ball.w / 2
+    ctx.arc(ball.x + align, ball.y + align, ball.w / 2, 0, Math.PI * 2)
+    ctx.fill();
+}
+
+function drawPlayer() {
     ctx.beginPath();
     ctx.rect(player.x, player.y, player.w, player.h);
     ctx.fillStyle = player.color;
     ctx.fill();
     ctx.closePath();
+}
+
+function draw() {
+    // * Cada vez que dibujamos, hay que borrar la pantalla anterior
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
+    playerMovement();
+    ballMovement();
+    drawPlayer();
+    drawBall();
+
     game.animation = requestAnimationFrame(draw);
 }
