@@ -49,6 +49,15 @@ document.addEventListener("keyup", (e) => {
     }
     console.log(keyz);
 });
+canvas.addEventListener('mousemove', (e) => {
+    //* movimiento del raton dentro del canvas
+    console.log(e);
+    const val = e.clientX - canvas.offsetLeft;
+    //* Si el raton está dentro del canvas
+    if (val > player.w && val < canvas.width) {
+        player.x = val - player.w
+    }
+})
 
 /* *
 ! ----------------------------------------------------------- DIBUJO */
