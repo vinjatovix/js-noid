@@ -16,8 +16,8 @@ const ball = {
     w: game.grid / 5,
     h: game.grid / 5,
     color: "gold",
-    dx: 5,
-    dy: 5,
+    dx: 12,
+    dy: 8,
 };
 // * Creo un plano fisico de 2 Dimensiones y lo prepengo en el DOM
 
