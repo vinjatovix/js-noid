@@ -7,6 +7,8 @@ const keyz = { ArrowLeft: false, ArrowRight: false };
 const game = {
     grid: 60,
     ani: "",
+    bricks: [],
+    num: 48,
 };
 const ball = {
     x: game.grid * 7,
@@ -73,12 +75,39 @@ canvas.addEventListener("mousemove", (e) => {
 /* *
 ! ----------------------------------------------------------- DIBUJO */
 game.ani = requestAnimationFrame(draw);
+startGame();
+
+function startGame() {
+    let buffer = 10;
+    let width = game.grid;
+    let height = game.grid / 2;
+    let totalAcross = Math.floor((canvas.width - game.grid) / (width + buffer));
+    let xPos = game.grid / 2;
+    let yPos = 0;
+    console.log(totalAcross);
+    for (let i = 0; i < game.num; i++) {
+        if (i % totalAcross == 0) {
+            yPos += height + buffer;
+            xPos = height
+        }
+        createBrick(xPos, yPos, width, height);
+        xPos += width + buffer;
+    }
+}
+
+function createBrick(xPos, yPos, width, height) {
+    game.bricks.push({
+        x: xPos,
+        y: yPos,
+        w: width,
+        h: height
+    })
+}
 
 function collDetection(obj1, obj2) {
     const xAxis = obj1.x < obj2.x + obj2.w && obj1.x + obj1.w > obj2.x;
     const yAxis = obj1.y < obj2.y + obj2.h && obj1.y + obj1.h > obj2.y;
     const val = xAxis && yAxis;
-
     return val;
 }
 
@@ -90,14 +119,14 @@ function draw() {
     ballMovement();
     drawPlayer();
     drawBall();
+    drawBricks();
     if (collDetection(player, ball)) {
         ball.dy *= -1;
-        let val1 = ball.x + (ball.w / 2) - player.x;
+        let val1 = ball.x + ball.w / 2 - player.x;
         let val2 = val1 - player.w / 2;
         let val3 = Math.ceil(val2 / (player.w / 10));
-        ball.dx = val3
-
-    };
+        ball.dx = val3;
+    }
 
     game.animation = requestAnimationFrame(draw);
 }
@@ -145,4 +174,15 @@ function drawPlayer() {
     ctx.fillStyle = player.color;
     ctx.fill();
     ctx.closePath();
+}
+
+//* Dibujamos los ladrillos
+function drawBricks() {
+    game.bricks.forEach((brick, index) => {
+        ctx.beginPath();
+        ctx.fillStyle = 'white';
+        ctx.rect(brick.x, brick.y, brick.w, brick.h);
+        ctx.fill();
+        ctx.closePath();
+    })
 }
