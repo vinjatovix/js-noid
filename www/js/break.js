@@ -96,11 +96,13 @@ function startGame() {
 }
 
 function createBrick(xPos, yPos, width, height) {
+    let randomColor = '#' + Math.random().toString(16).substr(-6);
     game.bricks.push({
         x: xPos,
         y: yPos,
         w: width,
-        h: height
+        h: height,
+        c: randomColor
     })
 }
 
@@ -180,9 +182,11 @@ function drawPlayer() {
 function drawBricks() {
     game.bricks.forEach((brick, index) => {
         ctx.beginPath();
-        ctx.fillStyle = 'white';
+        ctx.strokeStyle = 'white';
+        ctx.fillStyle = brick.c;
         ctx.rect(brick.x, brick.y, brick.w, brick.h);
         ctx.fill();
+        ctx.stroke();
         ctx.closePath();
     })
 }
