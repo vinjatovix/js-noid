@@ -88,7 +88,7 @@ function startGame() {
     for (let i = 0; i < game.num; i++) {
         if (i % totalAcross == 0) {
             yPos += height + buffer;
-            xPos = height
+            xPos = height;
         }
         createBrick(xPos, yPos, width, height);
         xPos += width + buffer;
@@ -96,14 +96,14 @@ function startGame() {
 }
 
 function createBrick(xPos, yPos, width, height) {
-    let randomColor = '#' + Math.random().toString(16).substr(-6);
+    let randomColor = "#" + Math.random().toString(16).substr(-6);
     game.bricks.push({
         x: xPos,
         y: yPos,
         w: width,
         h: height,
-        c: randomColor
-    })
+        c: randomColor,
+    });
 }
 
 function collDetection(obj1, obj2) {
@@ -121,7 +121,20 @@ function draw() {
     ballMovement();
     drawPlayer();
     drawBall();
-    drawBricks();
+    //* Dibujamos los ladrillos
+    game.bricks.forEach((brick, index) => {
+        ctx.beginPath();
+        ctx.strokeStyle = "white";
+        ctx.fillStyle = brick.c;
+        ctx.rect(brick.x, brick.y, brick.w, brick.h);
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+        if (collDetection(brick, ball)) {
+            game.bricks.splice(index, 1);
+            ball.dy *= -1;
+        }
+    });
     if (collDetection(player, ball)) {
         ball.dy *= -1;
         let val1 = ball.x + ball.w / 2 - player.x;
@@ -176,17 +189,4 @@ function drawPlayer() {
     ctx.fillStyle = player.color;
     ctx.fill();
     ctx.closePath();
-}
-
-//* Dibujamos los ladrillos
-function drawBricks() {
-    game.bricks.forEach((brick, index) => {
-        ctx.beginPath();
-        ctx.strokeStyle = 'white';
-        ctx.fillStyle = brick.c;
-        ctx.rect(brick.x, brick.y, brick.w, brick.h);
-        ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
-    })
 }
