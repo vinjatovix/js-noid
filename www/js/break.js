@@ -6,33 +6,33 @@ const keyz = { ArrowLeft: false, ArrowRight: false };
  * !---------------------------------------------------------TABLERO */
 const game = {
     grid: 60,
-    ani: "",
+    animation: "",
     bricks: [],
     num: 48,
 };
 const ball = {
-    x: game.grid * 7,
-    y: game.grid * 5,
-    w: game.grid / 5,
-    h: game.grid / 5,
+    coordinateX: game.grid * 7,
+    coordinateY: game.grid * 5,
+    width: game.grid / 5,
+    height: game.grid / 5,
     color: "gold",
-    dx: 12,
-    dy: 8,
+    speedX: 12,
+    speedY: 8,
 };
 // * Creo un plano fisico de 2 Dimensiones y lo prepengo en el DOM
 
 const canvas = document.createElement("canvas");
 canvas.style.background = "black";
-const ctx = canvas.getContext("2d");
+const contextDOM = canvas.getContext("2d");
 document.body.prepend(canvas);
 
 /**
  * ! ------------------------------------------------------   JUGADOR */
 const player = {
-    x: game.grid * 7,
-    y: game.grid * 9,
-    w: game.grid * 2,
-    h: game.grid / 2,
+    coordinateX: game.grid * 7,
+    coordinateY: game.grid * 9,
+    width: game.grid * 2,
+    height: game.grid / 2,
     color: "rebeccapurple",
     speed: 9,
 };
@@ -45,36 +45,36 @@ canvas.style.border = "1px solid black";
 
 // * Añado una escucha para la entrada de teclado
 
-document.addEventListener("keydown", (e) => {
+document.addEventListener("keydown", (event) => {
     /* console.log(e.code); */
 
-    // * cuando se pulsada este en el objeto keyz la declaramos como verdadera
-    if (e.code in keyz) {
-        keyz[e.code] = true;
+    // * cuando se pulsa este, en el objeto keyz la declaramos como verdadera
+    if (event.code in keyz) {
+        keyz[event.code] = true;
     }
     console.log(keyz);
 });
-document.addEventListener("keyup", (e) => {
-    //* cuando se despulsada este en el objeto keyz la declaramos como falsa
-    if (e.code in keyz) {
-        keyz[e.code] = false;
+document.addEventListener("keyup", (event) => {
+    //* cuando se despulsa este, en el objeto keyz la declaramos como falsa
+    if (event.code in keyz) {
+        keyz[event.code] = false;
     }
     console.log(keyz);
 });
-canvas.addEventListener("mousemove", (e) => {
+canvas.addEventListener("mousemove", (event) => {
     //* movimiento del raton dentro del canvas
     /*     console.log(e);
      */
-    const val = e.clientX - canvas.offsetLeft;
+    const mouseValue = event.clientX - canvas.offsetLeft;
     //* Si el raton está dentro del canvas
-    if (val > player.w && val < canvas.width) {
-        player.x = val - player.w;
+    if (mouseValue > player.width && mouseValue < canvas.width) {
+        player.coordinateX = mouseValue - player.width;
     }
 });
 
 /* *
 ! ----------------------------------------------------------- DIBUJO */
-game.ani = requestAnimationFrame(draw);
+game.animation = requestAnimationFrame(drawFrame);
 startGame();
 
 function startGame() {
@@ -106,16 +106,16 @@ function createBrick(xPos, yPos, width, height) {
     });
 }
 
-function collDetection(obj1, obj2) {
+function colisionDetection(obj1, obj2) {
     const xAxis = obj1.x < obj2.x + obj2.w && obj1.x + obj1.w > obj2.x;
     const yAxis = obj1.y < obj2.y + obj2.h && obj1.y + obj1.h > obj2.y;
     const val = xAxis && yAxis;
     return val;
 }
 
-function draw() {
+function drawFrame() {
     // * Cada vez que dibujamos, hay que borrar la pantalla anterior
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    contextDOM.clearRect(0, 0, canvas.width, canvas.height);
     //* En el contexto, dibujamos un rectangulo que recibe los datos del objeto player
     playerMovement();
     ballMovement();
@@ -123,70 +123,70 @@ function draw() {
     drawBall();
     //* Dibujamos los ladrillos
     game.bricks.forEach((brick, index) => {
-        ctx.beginPath();
-        ctx.strokeStyle = "white";
-        ctx.fillStyle = brick.c;
-        ctx.rect(brick.x, brick.y, brick.w, brick.h);
-        ctx.fill();
-        ctx.stroke();
-        ctx.closePath();
-        if (collDetection(brick, ball)) {
+        contextDOM.beginPath();
+        contextDOM.strokeStyle = "white";
+        contextDOM.fillStyle = brick.c;
+        contextDOM.rect(brick.x, brick.y, brick.w, brick.h);
+        contextDOM.fill();
+        contextDOM.stroke();
+        contextDOM.closePath();
+        if (colisionDetection(brick, ball)) {
             game.bricks.splice(index, 1);
-            ball.dy *= -1;
+            ball.speedY *= -1;
         }
     });
-    if (collDetection(player, ball)) {
-        ball.dy *= -1;
-        let val1 = ball.x + ball.w / 2 - player.x;
-        let val2 = val1 - player.w / 2;
-        let val3 = Math.ceil(val2 / (player.w / 10));
-        ball.dx = val3;
+    if (colisionDetection(player, ball)) {
+        ball.speedY *= -1;
+        let val1 = ball.coordinateX + ball.width / 2 - player.coordinateX;
+        let val2 = val1 - player.width / 2;
+        let val3 = Math.ceil(val2 / (player.width / 10));
+        ball.speedX = val3;
     }
 
-    game.animation = requestAnimationFrame(draw);
+    game.animation = requestAnimationFrame(drawFrame);
 }
 //* con esta funcion actualizamos la posicion del jugador
 function playerMovement() {
     if (keyz.ArrowLeft) {
-        player.x -= player.speed;
+        player.coordinateX -= player.speed;
     }
     if (keyz.ArrowRight) {
-        player.x += player.speed;
+        player.coordinateX += player.speed;
     }
 }
 //* Lo mismo con la bola
 function ballMovement() {
-    if (ball.x >= canvas.width || ball.x < 0) {
-        ball.dx *= -1;
+    if (ball.coordinateX >= canvas.width || ball.coordinateX < 0) {
+        ball.speedX *= -1;
     }
-    if (ball.y >= canvas.height || ball.y < 0) {
-        ball.dy *= -1;
+    if (ball.coordinateY >= canvas.height || ball.coordinateY < 0) {
+        ball.speedY *= -1;
     }
-    ball.x += ball.dx;
-    ball.y += ball.dy;
+    ball.coordinateX += ball.speedX;
+    ball.coordinateY += ball.speedY;
 }
 
 //* Dibujamos la bola
 function drawBall() {
-    ctx.beginPath();
-    ctx.rect(ball.x, ball.y, ball.w, ball.h);
-    ctx.strokeStyle = "black";
-    ctx.stroke();
+    contextDOM.beginPath();
+    contextDOM.rect(ball.coordinateX, ball.coordinateY, ball.width, ball.height);
+    contextDOM.strokeStyle = "black";
+    contextDOM.stroke();
 
-    ctx.closePath();
+    contextDOM.closePath();
 
-    ctx.beginPath();
-    ctx.fillStyle = ball.color;
-    let align = ball.w / 2;
-    ctx.arc(ball.x + align, ball.y + align, ball.w / 2, 0, Math.PI * 2);
-    ctx.fill();
+    contextDOM.beginPath();
+    contextDOM.fillStyle = ball.color;
+    let align = ball.width / 2;
+    contextDOM.arc(ball.coordinateX + align, ball.coordinateY + align, ball.width / 2, 0, Math.PI * 2);
+    contextDOM.fill();
 }
 
 //* dibujamos al jugador
 function drawPlayer() {
-    ctx.beginPath();
-    ctx.rect(player.x, player.y, player.w, player.h);
-    ctx.fillStyle = player.color;
-    ctx.fill();
-    ctx.closePath();
+    contextDOM.beginPath();
+    contextDOM.rect(player.coordinateX, player.coordinateY, player.width, player.height);
+    contextDOM.fillStyle = player.color;
+    contextDOM.fill();
+    contextDOM.closePath();
 }
